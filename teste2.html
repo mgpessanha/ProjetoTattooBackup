@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<style>
+		/* Aplica regras de estilo para os elementos <html> e <body> */
+		html, body {
+		margin: 0; /* Remove a margem padrão */
+		padding: 0; /* Remove o preenchimento padrão */
+		overflow: hidden; /* Esconde qualquer conteúdo que ultrapasse os limites do viewport */
+		background-color: #E7CEFF;
+		}
+
+		/* Estiliza o contêiner para preencher completamente a altura e a largura da viewport */
+		.container {
+		width: 100vw; /* Define a largura para 100% da largura da viewport */
+		height: 100vh; /* Define a altura para 100% da altura da viewport */
+		display: flex; /* Usa Flexbox para alinhar elementos internos */
+		justify-content: center; /* Centraliza os itens horizontalmente dentro do contêiner */
+		align-items: center; /* Centraliza os itens verticalmente dentro do contêiner */
+		}
+
+		/* Aplica estilos ao elemento com a classe .canvas-stitch */
+		.canvas-stitch {
+		display: none; /* Esconde o elemento */
+		}
+		:root {
+            --red: hsl(0, 100%, 80%);
+            --yellow: hsl(62, 100%, 80%);
+            --green: hsl(122, 100%, 80%);
+            --blue: hsl(179, 100%, 80%);
+            --purple: hsl(238, 100%, 80%);
+            --pink: hsl(302, 100%, 80%);
+            
+            --fontPoppins: 'Poppins', sans-serif;
+        }
+
+        [type=submit], [type=reset], button, html [type=button] {
+            -webkit-appearance: button;
+            text-transform: none;
+        }
+
+        body {
+            background: hsl(0 0% 4%);
+            background: hsl(210 14% 11%);
+            background: hsl(228 6% 15%);
+            padding: 0;
+            margin: 0;
+        }
+
+        .glowButtonWrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 150ms linear;
+        }
+
+        .glowButtonWrapper:hover {
+            transform: translate(-50%, -50%) scale(1.15);
+        }
+
+        .glowButtonWrapper:active {
+            transform: translate(-50%, -50%) scale(0.95);
+        }
+
+        .glowButton {
+            padding: 1.25em 2.5em; /* Aumentado de 0.875em 2.1em para 1.25em 2.5em */
+            font-size: 1.2em; /* Aumentado de 1em para 1.2em para tornar o texto maior */
+            color: #fff;
+            background-color: var(--blue); 
+            border: none;
+            border-radius: 2.25em;
+            box-shadow: 0 0 3px #000, 0 1px 6px #000, 0 4px 8px #000;
+            cursor: pointer;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .glowButtonWrapper .glowButton {
+            --angle: 0deg;
+            --buttonBorder: 4px;
+            --buttonBorderRadius: 2.25em;
+            --buttonBorderRadiusBefore: 3em;
+            
+            position: relative;
+            display: flex;
+            padding: 0.875em 2.1em;
+            gap: 0.875em;
+            font-size: 1em;
+            align-items: center;
+            border-radius: var(--buttonBorderRadius);
+            font-weight: 160;
+            border: 0;
+            /* overflow: hidden; */
+            transition: background 3ms linear;
+            
+            color: hsl(0, 0%, 98%);
+            font-family: sans-serif;
+            
+            background: hsl(0 0% 0% / 0%);
+            
+            /* border: 2px solid transparent; */
+            box-shadow: 0 0 3px #cf9fe6, 
+                0 1px 6px #cf9fe6, 
+                0 4px 8px #cf9fe6;
+            z-index: 1;
+        }
+
+        .glowButtonWrapper:hover .glowButton {
+            transition: background 3ms linear;
+            
+            background: conic-gradient(
+                in hsl longer hue from var(--angle), 
+                hsl(0, 100%, 80%) 0 0
+            ) border-box;
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            
+            box-shadow: 
+                0 0 3px hsl(0 35% 80% / 65%), 
+                0 1px 6px hsl(60 15% 80% / 50%), 
+                0 4px 8px hsl(120 48% 80% / 30%), 
+                0 5px 11px hsl(5 20% 80% / 20%);
+            
+            mix-blend-mode: color-dodge;
+            
+            animation: angle 2s linear infinite;
+        }
+
+        @property --angle {
+            syntax: '<angle>'; 
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        /* target only Firefox */
+        @-moz-document url-prefix() {
+            .glowButtonWrapper .glowButton {
+                transition: all 250ms linear;
+                background: transparent;
+            }
+            
+            .glowButtonWrapper:hover .glowButton {
+                --angleFX: 0deg;
+                /* transition: background 3ms linear; */
+                transition: background 3ms linear;
+                background:
+                conic-gradient(
+                    from var(--angleFX) at 50% 50%,
+                    var(--red),
+                    var(--yellow),
+                    var(--green),
+                    var(--blue),
+                    var(--purple),
+                    var(--pink),
+                    var(--red)
+                ) border-box;
+                
+                animation: angleFX 2s linear infinite;
+            }
+        }
+
+        .glowButtonWrapper .glowButton:before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%);
+            margin: 0 auto;
+            padding: 0;
+            
+            background: hsl(233 12% 13% / 1) padding-box;
+            background:
+            linear-gradient(
+                to bottom,
+                hsl(228 5% 20% / 1),
+                hsl(228 4% 25% / 1)
+            ) padding-box;
+            border: 1px solid hsl(210 14% 9% / 60%);
+            
+            border-radius: var(--buttonBorderRadiusBefore);
+            z-index: -1;
+        }
+
+        .glowButtonWrapper:hover .glowButton:before {
+            width: calc(100% - 7.2px);
+            height: calc(100% - 7.2px);
+            
+            box-shadow: 0 1px 0px hsl(0 0% 45% / 100%) inset,
+                0 0 2px hsl(0 0% 75% / 30%);
+                
+            background: hsl(0 0% 25% / 90%) padding-box;
+            background:
+            linear-gradient(
+                to bottom,
+                hsl(228 5% 20% / 88%),
+                hsl(228 4% 25% / 92%)
+            ) padding-box;
+        }
+
+        @keyframes angle { to { --angle: 1turn; } }
+
+        @keyframes angleFX {
+            00.00% { --angleFX: 0deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            04.16% { --angleFX: 15deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            08.32% { --angleFX: 30deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            12.48% { --angleFX: 45deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            16.64% { --angleFX: 60deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            20.80% { --angleFX: 75deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            24.96% { --angleFX: 90deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            29.12% { --angleFX: 105deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            33.28% { --angleFX: 120deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            37.44% { --angleFX: 135deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            41.60% { --angleFX: 150deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            45.76% { --angleFX: 165deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            49.92% { --angleFX: 180deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            54.08% { --angleFX: 195deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            58.24% { --angleFX: 210deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            62.40% { --angleFX: 225deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            66.56% { --angleFX: 240deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            70.72% { --angleFX: 255deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            74.88% { --angleFX: 270deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            79.04% { --angleFX: 285deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            83.20% { --angleFX: 300deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            87.36% { --angleFX: 315deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            91.52% { --angleFX: 330deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            95.68% { --angleFX: 345deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+            100.0% { --angleFX: 360deg; background: conic-gradient( from var(--angleFX) at 50% 50%, var(--red), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink), var(--red) ); }
+        }
+
+		canvas {
+			position: relative; /* Garantir que o canvas não seja afetado pelo botão absoluto */
+			width: 100%; /* Toma a largura total do contêiner */
+			height: 100%; /* Toma a altura total do contêiner */
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<canvas class="canvas js-canvas"></canvas>
+		<canvas class="canvas-stitch js-canvas-stitch"></canvas>
+		<div class="glowButtonWrapper">
+            <button class="glowButton" onclick="comecar()"><span class="buttonText">Começar</span></button>
+        </div>
+	</div>
+	<script>
+		// https://www.youtube.com/watch?v=5R9eywArFTE
+		// http://www.tylerlhobbs.com/writings/watercolor
+		// https://sighack.com/post/generative-watercolor-in-processing
+
+		// https://p5js.org/reference/#/p5/randomGaussian
+		// https://github.com/processing/p5.js/blob/master/src/math/random.js#L166
+		const randomGaussian = (mean = 0, sd = 1) => {
+		let y1;
+		let x1;
+		let x2
+		let w;
+		let previous;
+
+		if (previous) {
+			y1 = y2;
+			previous = false;
+		} else {
+			do {
+			x1 = (Math.random() * 2) - 1;
+			x2 = (Math.random() * 2) - 1;
+			w = x1 * x1 + x2 * x2;
+			} while (w >= 1);
+			w = Math.sqrt(-2 * Math.log(w) / w);
+			y1 = x1 * w;
+			y2 = x2 * w;
+			previous = true;
+		}
+
+		return y1 * sd + mean;
+		};
+
+		const randomBetween = (min, max) => (Math.random() * (max - min + 1)) + min;
+
+		const ctx = document
+		.querySelector('.js-canvas')
+		.getContext('2d');
+
+		// stitch pattern
+		const ctxStitch = document
+		.querySelector('.js-canvas-stitch')
+		.getContext('2d');
+
+		const stitchWidth = 5;
+
+		ctxStitch.canvas.width = stitchWidth;
+		ctxStitch.canvas.height = stitchWidth;
+
+		ctxStitch.strokeStyle = `rgba(220, 220, 220, 0.1)`;
+
+		ctxStitch.beginPath();
+		ctxStitch.moveTo(0, 0);
+		ctxStitch.lineTo(stitchWidth, stitchWidth);
+		ctxStitch.stroke();
+		ctxStitch.closePath();
+
+		ctxStitch.beginPath();
+		ctxStitch.moveTo(0, stitchWidth);
+		ctxStitch.lineTo(stitchWidth, 0);
+		ctxStitch.stroke();
+		ctxStitch.closePath();
+
+		const stitchPattern = ctx.createPattern(ctxStitch.canvas, 'repeat');
+
+
+		const W = window.innerWidth;
+		const H = window.innerHeight;
+
+		const MID_X = W * 0.5;
+		const MID_Y = H * 0.5;
+
+		const EDGES = 12;
+		const TAU = Math.PI * 2;
+		const R = Math.min(Math.min(MID_X, MID_Y) * 0.5, 150);
+
+		const ALPHA = 0.006;
+		const COLORS = [
+		`hsla(330, 100%, 50%, ${ALPHA})`,
+		`hsla(210, 100%, 50%, ${ALPHA})`,
+		`hsla(140, 100%, 50%, ${ALPHA})`,
+		`hsla(0, 100%, 50%, ${ALPHA})`,
+		];
+
+		const INTERLEAVE = 5;
+
+		const VARIANCE_DEFAULT = 20;
+		const NUM_POLIES = 200;
+		const DEPTH = 4;
+		const NUM_SPOTS = 3;
+		const ANGLE_STEP = TAU / NUM_SPOTS;
+
+		let polyCount = 0;
+		let rafId;
+
+		ctx.globalCompositeOperation = 'multiply';
+		ctx.canvas.width = W;
+		ctx.canvas.height = H;
+
+		// get the points for a regular polygon with <edges>
+		const getPoly = (midX, midY, r, edges) => {
+		const vertices = [];
+		const angleStep = TAU / edges;
+
+		for (let angle = 0; angle < TAU; angle += angleStep) {
+			const x = midX + Math.cos(angle) * r;
+			const y = midY + Math.sin(angle) * r;
+
+			vertices.push({ x, y });
+		}
+
+		return vertices;
+		};
+
+		// add extra point between each side of the polygon
+		const deformPoly = (vertices, depth, variance, varianceDecrease) => {
+		let deformedVertices = [];
+
+		for (let i = 0; i < vertices.length; i++) {
+			const from = vertices[i];
+			const to = i === vertices.length - 1 ? vertices[0] : vertices[i + 1];
+
+			const midX = (from.x + to.x) * 0.5;
+			const midY = (from.y + to.y) * 0.5;
+
+			const newX = midX + randomGaussian() * variance;
+			const newY = midY + randomGaussian() * variance;
+
+			deformedVertices.push(from);
+			deformedVertices.push({ x: newX, y: newY });
+		}
+
+		if (depth > 0) {
+			depth--;
+
+			return deformPoly(deformedVertices, depth, variance / varianceDecrease, varianceDecrease);
+		}
+
+		return deformedVertices;
+		};
+
+		const drawPoly = (vertices, color) => {
+		const [firstVertex] = vertices;
+
+		ctx.save();
+		ctx.translate(MID_X, MID_Y);
+		ctx.beginPath();
+		ctx.fillStyle = color;
+		ctx.moveTo(firstVertex.x, firstVertex.y);
+
+		for (let i = 1; i < vertices.length; i++) {
+			const vertex = vertices[i];
+			ctx.lineTo(vertex.x, vertex.y);
+		}
+
+		ctx.lineTo(firstVertex.x, firstVertex.y);
+		ctx.fill();
+		ctx.closePath();
+		ctx.restore();
+		};
+
+		// blend the polygons
+		const drawLayer = (poly, polyIndex) => {
+		for (let i = 0; i < INTERLEAVE; i++) {
+			requestAnimationFrame(() => {
+			const deformed = deformPoly(poly, DEPTH, VARIANCE_DEFAULT + randomBetween(20, 15), 4);
+
+			drawPoly(deformed, COLORS[polyIndex]);
+			});
+		}
+		};
+
+		const reset = () => {
+		polyCount = 0;
+
+		cancelAnimationFrame(rafId);
+
+		ctx.clearRect(0, 0, ctx.canvas.width,ctx.canvas.height);
+		};
+
+		const generate = () => {
+			reset();
+
+			ctx.fillStyle = 'black'; // Define a cor de fundo para preto
+			ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Preenche o canvas com preto
+
+		const polies = new Array(NUM_SPOTS).fill().map((_, i) => {
+			const poly = getPoly(
+			Math.cos(ANGLE_STEP * i) * (R * 0.5) * randomGaussian(1,),
+			Math.sin(ANGLE_STEP * i) * (R * 0.5) * randomGaussian(1,),
+			R + randomBetween(-15, 15),
+			EDGES
+			);
+
+			return deformPoly(poly, DEPTH, VARIANCE_DEFAULT, 2);
+		});
+
+		ctx.fillStyle = stitchPattern;
+		ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+		const draw = () => {
+			polies.forEach(drawLayer);
+
+			polyCount += INTERLEAVE;
+
+			if (polyCount < NUM_POLIES) {
+				rafId = requestAnimationFrame(draw);
+			}
+		};
+
+		draw();
+	};
+
+
+		generate();
+		document.body.addEventListener('click', generate);
+
+		function comecar() {
+        window.location.href = "login-cadastro.html";
+       } 
+	</script>
+</body>
+</html>
